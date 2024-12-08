@@ -80,7 +80,7 @@ if ($is_admin) {
         if (!$stmt->execute()) {
             die("Error deleting animal: " . $stmt->error);
         }
-        $stmt->close();
+        $stmt->close(); 
     
         // Отримання максимального значення animal_id
         $max_animal_id_query = "SELECT MAX(animal_id) AS max_id FROM animal";
@@ -92,15 +92,13 @@ if ($is_admin) {
         $max_animal_id_row = $result->fetch_assoc();
         $max_animal_id = $max_animal_id_row['max_id'] ?: 0;
         $stmt->close();
-    
-        // Скидання AUTO_INCREMENT для таблиці animal
-        $reset_auto_increment_animal_query = "ALTER TABLE animal AUTO_INCREMENT = ?";
-        $stmt = $con->prepare($reset_auto_increment_animal_query);
-        $stmt->bind_param("i", $max_animal_id);
-        if (!$stmt->execute()) {
-            die("Error resetting AUTO_INCREMENT for animal: " . $stmt->error);
+
+        // Скидання AUTO_INCREMENT для таблиці animal 
+        $new_auto_increment = $max_animal_id + 1;
+        $reset_auto_increment_animal_query = "ALTER TABLE animal AUTO_INCREMENT = $new_auto_increment";
+        if (!$con->query($reset_auto_increment_animal_query)) {
+            die("Error resetting AUTO_INCREMENT for animal: " . $con->error);
         }
-        $stmt->close();
     
         // Отримання максимального значення information_about_animal_id
         $max_info_id_query = "SELECT MAX(information_about_animal_id) AS max_info_id FROM information_about_animal";
@@ -112,15 +110,14 @@ if ($is_admin) {
         $max_info_id_row = $result->fetch_assoc();
         $max_info_id = $max_info_id_row['max_info_id'] ?: 0;
         $stmt->close();
-    
+
         // Скидання AUTO_INCREMENT для таблиці information_about_animal
-        $reset_auto_increment_info_query = "ALTER TABLE information_about_animal AUTO_INCREMENT = ?";
-        $stmt = $con->prepare($reset_auto_increment_info_query);
-        $stmt->bind_param("i", $max_info_id);
-        if (!$stmt->execute()) {
-            die("Error resetting AUTO_INCREMENT for information_about_animal: " . $stmt->error);
+        $new_auto_increment_info = $max_info_id + 1;
+        $reset_auto_increment_info_query = "ALTER TABLE information_about_animal AUTO_INCREMENT = $new_auto_increment_info";
+
+        if (!$con->query($reset_auto_increment_info_query)) {
+            die("Error resetting AUTO_INCREMENT for information_about_animal: " . $con->error);
         }
-        $stmt->close();
     
         // Перенаправлення на сторінку
         header("Location: animal_info.php");
